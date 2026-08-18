@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CraveFood</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;600;700;800&family=Fraunces:wght@600;700&display=swap');
+
+  :root{
+    --ink:#1B1B1B;
+    --paper:#EFEAE0;
+    --paper-dark:#E3DDCF;
+    --paper-darker:#D8D0BE;
+    --green:#2F6B4F;
+    --green-dark:#1F4B37;
+    --green-light:#DCE3D6;
+    --stamp:#C1443C;
+    --gold:#C9A227;
+    --gold-light:#F1E3B4;
+    --line:#c7bfa9;
+    --card1:#274B63;
+    --card2:#3E7CA6;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,0,0,0.025) 28px);
+    position:relative;
+    padding-bottom:90px;
+  }
+
+  .mono{font-family:'Courier Prime', monospace;}
+  .serif{font-family:'Fraunces',serif;}
+
+  /* ---------- Header ---------- */
+  header.topbar{
+    padding:22px 20px 16px;
+    border-bottom:2px dashed var(--line);
+    position:relative;
+    background:linear-gradient(180deg, #F5F1E6, var(--paper));
+  }
+  header.topbar .brand{ display:flex;align-items:baseline;gap:8px; }
+  header.topbar .brand .mark{
+    font-family:'Fraunces',serif; font-weight:700; font-size:27px; letter-spacing:-0.5px;
+  }
+  header.topbar .brand .mark span{color:var(--green);}
+  header.topbar .tag{ font-size:11.5px; text-transform:uppercase; letter-spacing:1.5px; color:#6b6455; margin-top:4px; }
+  .streak-pill{
+    position:absolute; top:20px; right:18px;
+    background:var(--ink); color:var(--paper);
+    font-family:'Courier Prime',monospace; font-size:12.5px; font-weight:700;
+    padding:6px 10px; border-radius:20px; display:flex; align-items:center; gap:5px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{ display:flex; border-bottom:2px dashed var(--line); background:var(--paper-dark); position:sticky; top:0; z-index:30;}
+  nav.tabs button{
+    flex:1; padding:13px 6px; background:none; border:none;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:13px;
+    color:#7d7461; cursor:pointer; letter-spacing:0.3px;
+    border-bottom:3px solid transparent; transition:color .15s, border-color .15s;
+  }
+  nav.tabs button.active{ color:var(--ink); border-bottom-color:var(--green); }
+
+  main{padding:18px 18px 10px;}
+
+  /* ---------- Nudge banner ---------- */
+  .nudge{
+    background:var(--green-light); border:1.5px solid #b9c7ae; border-radius:10px;
+    padding:12px 14px; margin-bottom:16px; font-size:13.5px; line-height:1.45; color:var(--green-dark);
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .nudge .icon{font-size:17px; line-height:1;}
+  .nudge b{color:var(--green-dark);}
+
+  /* ---------- Restaurant cards ---------- */
+  .section-label{
+    font-family:'Courier Prime',monospace; font-weight:700; font-size:12.5px;
+    text-transform:uppercase; letter-spacing:1px; color:#7d7461;
+    margin:18px 0 10px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .r-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .r-card{
+    background:#fff; border:1.5px solid var(--line); border-radius:14px;
+    padding:0; cursor:pointer; transition:transform .12s, box-shadow .12s; text-align:left; overflow:hidden;
+  }
+  .r-card:hover{transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.1);}
+  .r-card .banner{
+    height:52px; display:flex; align-items:center; justify-content:center; font-size:26px;
+  }
+  .r-card .body{padding:10px 12px 12px;}
+  .r-card .name{font-weight:700; font-size:13.5px;}
+  .r-card .cuisine{font-size:11px; color:#8a8271; margin-top:2px;}
+  .r-card .meta{display:flex; gap:8px; margin-top:7px; font-size:10.5px; color:#6b6455;}
+  .r-card .meta span{display:flex; align-items:center; gap:3px;}
+
+  /* ---------- Menu view ---------- */
+  .r-hero{
+    border-radius:16px; padding:22px 16px; margin-bottom:14px; color:#fff; position:relative; overflow:hidden;
+  }
+  .r-hero .emoji{font-size:34px;}
+  .r-hero .name{font-family:'Fraunces',serif; font-weight:700; font-size:20px; margin-top:6px;}
+  .r-hero .cuisine{font-size:12px; opacity:.9; margin-top:2px;}
+  .r-hero .meta{display:flex; gap:14px; margin-top:10px; font-size:11.5px; opacity:.95;}
+  .back-btn{
+    background:none; border:none; font-family:'Inter'; font-weight:600; font-size:13px;
+    color:var(--green-dark); cursor:pointer; padding:0 0 12px; display:flex; align-items:center; gap:4px;
+  }
+  .menu-item{ display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px dashed var(--line); }
+  .menu-item .info .name{font-weight:600; font-size:14px;}
+  .menu-item .info .desc{font-size:11px; color:#9a9382; margin-top:2px;}
+  .menu-item .info .price{font-family:'Courier Prime'; font-size:13px; color:#6b6455; margin-top:4px;}
+  .qty-btn{
+    background:var(--ink); color:var(--paper); border:none; border-radius:8px;
+    padding:8px 14px; font-family:'Courier Prime'; font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .qty-control{display:flex; align-items:center; gap:10px;}
+  .qty-control button{
+    width:27px; height:27px; border-radius:7px; border:1.5px solid var(--ink);
+    background:none; font-size:15px; font-weight:700; cursor:pointer; line-height:1;
+  }
+  .qty-control .num{font-family:'Courier Prime'; font-weight:700; min-width:14px; text-align:center;}
+
+  /* ---------- Floating cart bar ---------- */
+  .cart-bar{
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:520px; background:var(--ink); color:var(--paper);
+    padding:14px 18px; display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer; z-index:40; box-shadow:0 -4px 16px rgba(0,0,0,0.18);
+  }
+  .cart-bar .l{font-size:12.5px; color:#c9c2af;}
+  .cart-bar .r{font-family:'Courier Prime'; font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px;}
+  .cart-bar .go{background:var(--green); padding:7px 13px; border-radius:8px; font-size:12.5px;}
+
+  /* ---------- Modal / Sheet ---------- */
+  .overlay{ position:fixed; inset:0; background:rgba(20,18,12,0.55); display:flex; align-items:flex-end; justify-content:center; z-index:100; }
+  .sheet{
+    width:100%; max-width:520px; background:var(--paper); border-radius:20px 20px 0 0;
+    padding:22px 20px 26px; max-height:88vh; overflow-y:auto; animation:slideUp .22s ease-out; position:relative;
+  }
+  @keyframes slideUp{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+  .sheet h3{margin:0 0 4px; font-family:'Fraunces',serif; font-size:19px;}
+  .sheet .sub{font-size:12.5px; color:#8a8271; margin-bottom:14px;}
+  .close-x{position:absolute; top:16px; right:18px; background:none; border:none; font-size:20px; cursor:pointer; color:#8a8271;}
+
+  /* checkout step progress */
+  .step-track{ display:flex; align-items:center; gap:6px; margin-bottom:18px; }
+  .step-track .dot{ width:26px; height:26px; border-radius:50%; background:#fff; border:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#a39c89; }
+  .step-track .dot.on{ background:var(--green); border-color:var(--green); color:#fff; }
+  .step-track .dot.done{ background:var(--green-dark); border-color:var(--green-dark); color:#fff; }
+  .step-track .seg{ flex:1; height:2px; background:var(--line); }
+  .step-track .seg.on{ background:var(--green); }
+
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 16px;}
+  .chip{ padding:8px 13px; border-radius:20px; border:1.5px solid var(--line); background:#fff; font-size:12.5px; font-weight:600; cursor:pointer; color:#6b6455; }
+  .chip.sel{background:var(--green); border-color:var(--green); color:#fff;}
+  textarea, input[type=text], input[type=number]{
+    width:100%; border:1.5px solid var(--line); border-radius:9px; padding:10px 11px;
+    font-family:'Inter'; font-size:13.5px; background:#fff; resize:none;
+  }
+  label.field-label{font-size:11.5px; font-weight:700; color:#7d7461; text-transform:uppercase; letter-spacing:.5px; display:block; margin:12px 0 6px;}
+
+  .primary-btn{
+    width:100%; background:var(--green); color:#fff; border:none; border-radius:11px;
+    padding:14px; font-family:'Courier Prime'; font-weight:700; font-size:14.5px;
+    cursor:pointer; margin-top:16px; letter-spacing:0.3px; box-shadow:0 4px 12px rgba(47,107,79,0.25);
+  }
+  .primary-btn:disabled{ opacity:.45; cursor:not-allowed; box-shadow:none; }
+  .ghost-btn{
+    width:100%; background:none; color:var(--ink); border:1.5px solid var(--ink); border-radius:11px;
+    padding:12px; font-family:'Inter'; font-weight:600; font-size:13.5px; cursor:pointer; margin-top:8px;
+  }
+  .link-btn{ background:none;border:none;color:var(--green-dark);font-weight:600;font-size:12.5px; cursor:pointer; text-decoration:underline; padding:0; }
+
+  /* address cards */
+  .addr-card{
+    border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:10px; cursor:pointer; background:#fff;
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .addr-card.sel{ border-color:var(--green); background:var(--green-light); }
+  .addr-card .lbl{font-weight:700; font-size:13px;}
+  .addr-card .txt{font-size:12px; color:#8a8271; margin-top:3px; line-height:1.4;}
+  .addr-card .check{color:var(--green); font-weight:700; font-size:15px;}
+  .add-addr-form{ border:1.5px dashed var(--line); border-radius:12px; padding:12px 14px; margin-top:6px; background:#fff; }
+
+  /* payment methods */
+  .pay-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:6px 0 4px; }
+  .pay-card{
+    border:1.5px solid var(--line); border-radius:12px; padding:14px 10px; text-align:center; cursor:pointer; background:#fff;
+  }
+  .pay-card.sel{ border-color:var(--green); background:var(--green-light); }
+  .pay-card .ic{font-size:22px;}
+  .pay-card .lb{font-size:12px; font-weight:700; margin-top:6px;}
+
+  .demo-card{
+    margin-top:14px; border-radius:14px; padding:18px; color:#fff;
+    background:linear-gradient(135deg, var(--card1), var(--card2));
+    font-family:'Courier Prime',monospace; position:relative; overflow:hidden;
+  }
+  .demo-card .badge{ position:absolute; top:12px; right:14px; font-size:9px; background:rgba(255,255,255,0.18); padding:3px 8px; border-radius:10px; letter-spacing:.5px;}
+  .demo-card .num{ font-size:16px; letter-spacing:2px; margin-top:22px; }
+  .demo-card .row{ display:flex; justify-content:space-between; margin-top:14px; font-size:10px; opacity:.9; }
+  .demo-note{ font-size:11px; color:#8a8271; margin-top:8px; text-align:center; }
+
+  /* order tracking */
+  .track-wrap{ text-align:center; padding:10px 0 4px; }
+  .track-wrap .circle{
+    width:88px; height:88px; border-radius:50%; margin:0 auto 16px; display:flex; align-items:center; justify-content:center;
+    background:var(--green-light); font-size:38px; position:relative;
+  }
+  .track-wrap .circle.spin::before{
+    content:''; position:absolute; inset:-4px; border-radius:50%; border:3px solid var(--green); border-top-color:transparent;
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .track-status{ font-family:'Courier Prime'; font-weight:700; font-size:15px; margin-bottom:4px; min-height:20px; }
+  .track-sub{ font-size:12px; color:#8a8271; margin-bottom:18px; }
+  .track-steps{ text-align:left; margin-top:10px; }
+  .track-step{ display:flex; align-items:center; gap:10px; padding:7px 0; font-size:12.5px; color:#c2bba7; }
+  .track-step.done{ color:var(--ink); font-weight:600; }
+  .track-step .tick{ width:18px; height:18px; border-radius:50%; border:1.5px solid #c2bba7; display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+  .track-step.done .tick{ background:var(--green); border-color:var(--green); color:#fff; }
+
+  /* ---------- Receipt / stamp ---------- */
+  .receipt-wrap{position:relative; padding:6px 0 10px; display:flex; justify-content:center;}
+  .receipt{
+    background:#fff; width:100%; padding:20px 18px 24px; border-radius:2px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.14); position:relative; font-family:'Courier Prime', monospace; font-size:12.5px;
+  }
+  .receipt::after{
+    content:''; position:absolute; left:0; right:0; bottom:-9px; height:10px;
+    background:linear-gradient(135deg, var(--paper) 50%, transparent 50%), linear-gradient(45deg, var(--paper) 50%, transparent 50%);
+    background-size:14px 18px; background-repeat:repeat-x; background-position:top;
+  }
+  .receipt .rline{display:flex; justify-content:space-between; padding:3px 0;}
+  .receipt .dash{border-top:1px dashed #999; margin:8px 0;}
+  .receipt .center{text-align:center;}
+  .stamp{
+    position:absolute; top:36%; left:50%; transform:translate(-50%,-50%) rotate(-11deg) scale(2.4); opacity:0;
+    border:3.5px solid var(--stamp); color:var(--stamp); font-family:'Courier Prime'; font-weight:700; font-size:19px;
+    padding:6px 15px; border-radius:8px; letter-spacing:2px; pointer-events:none;
+  }
+  .stamp.show{ animation:stampIn .45s cubic-bezier(.2,1.6,.4,1) forwards .2s; }
+  @keyframes stampIn{
+    0%{opacity:0; transform:translate(-50%,-50%) rotate(-11deg) scale(2.6);}
+    60%{opacity:1; transform:translate(-50%,-50%) rotate(-11deg) scale(0.92);}
+    100%{opacity:0.9; transform:translate(-50%,-50%) rotate(-11deg) scale(1);}
+  }
+  .confetti-msg{ text-align:center; margin-top:18px; font-size:14.5px; font-weight:700; color:var(--green-dark); opacity:0; animation:fadeIn .4s ease forwards .75s; }
+  @keyframes fadeIn{to{opacity:1;}}
+
+  /* checkmark */
+  .checkmark-wrap{ text-align:center; padding:6px 0 2px; }
+  .checkmark-circle{ width:76px; height:76px; border-radius:50%; background:var(--green); margin:0 auto 14px; display:flex; align-items:center; justify-content:center; }
+  .checkmark-circle svg{ width:38px; height:38px; }
+  .checkmark-circle path{ stroke:#fff; stroke-width:4; fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:40; stroke-dashoffset:40; animation:draw .5s ease forwards .1s; }
+  @keyframes draw{ to{stroke-dashoffset:0;} }
+
+  /* ---------- Dashboard ---------- */
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:6px;}
+  .stat-card{ background:#fff; border:1.5px solid var(--line); border-radius:14px; padding:14px; }
+  .stat-card .big{font-family:'Courier Prime'; font-weight:700; font-size:22px; color:var(--green-dark);}
+  .stat-card .lbl{font-size:11.5px; color:#8a8271; margin-top:3px; letter-spacing:.2px;}
+
+  .chart-box{ background:#fff; border:1.5px solid var(--line); border-radius:14px; padding:16px 14px 10px; margin-top:16px; }
+  .chart-box .title{font-size:12px; font-weight:700; color:#7d7461; text-transform:uppercase; letter-spacing:.6px; margin-bottom:12px;}
+  .bars{display:flex; align-items:flex-end; gap:5px; height:90px;}
+  .bars .bar-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .bars .bar{width:100%; background:linear-gradient(180deg, #3f8c68, var(--green)); border-radius:4px 4px 0 0; min-height:2px;}
+  .bars .bar.zero{background:var(--paper-darker);}
+  .bars .day{font-size:9px; color:#a39c89; margin-top:5px;}
+
+  .badges{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+  .badge{
+    display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:20px;
+    font-size:12px; font-weight:700; border:1.5px solid var(--line); background:#fff; color:#b3ab97;
+  }
+  .badge.on{background:var(--gold); border-color:var(--gold); color:#3a2f05; box-shadow:0 2px 8px rgba(201,162,39,0.3);}
+
+  /* ---------- History ---------- */
+  .hist-item{ background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+  .hist-item .top{display:flex; justify-content:space-between; align-items:baseline;}
+  .hist-item .r{font-weight:700; font-size:13.5px;}
+  .hist-item .amt{font-family:'Courier Prime'; font-weight:700; color:var(--green-dark);}
+  .hist-item .meta{font-size:11.5px; color:#8a8271; margin-top:3px;}
+  .hist-item .note{font-size:12px; margin-top:6px; color:#5b5546; font-style:italic;}
+  .empty{text-align:center; padding:50px 20px; color:#a39c89; font-size:13.5px;}
+  .empty .big-emoji{font-size:34px; margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><span class="mark">crave<span>food</span></span></div>
+    <div class="tag">order the ritual, not the meal</div>
+    <div class="streak-pill" id="streakPill">🔥 0 day streak</div>
+  </header>
+
+  <nav class="tabs">
+    <button data-view="order" class="active">Order</button>
+    <button data-view="dashboard">Savings</button>
+    <button data-view="history">History</button>
+  </nav>
+
+  <main id="main"></main>
+</div>
+
+<script>
+(function(){
+  const RESTAURANTS = [
+    {id:'spice', name:'Spice Route Kitchen', cuisine:'North Indian', emoji:'🍛', color:'#B5541A', rating:'4.3', time:'28-35 min',
+      items:[{n:'Butter Chicken',p:280,d:'Slow-cooked tomato & butter gravy'},{n:'Paneer Tikka Masala',p:240,d:'Chargrilled paneer, smoky masala'},{n:'Garlic Naan (2pc)',p:70,d:'Tandoor-fresh'},{n:'Veg Biryani',p:210,d:'Fragrant basmati, mixed veg'},{n:'Gulab Jamun (2pc)',p:90,d:'Warm, syrup-soaked'}]},
+    {id:'momo', name:'Momo Dojo', cuisine:'Tibetan · Fusion', emoji:'🥟', color:'#A34E7C', rating:'4.5', time:'22-30 min',
+      items:[{n:'Steamed Chicken Momo',p:160,d:'8pc, sesame chilli oil'},{n:'Fried Veg Momo',p:140,d:'Crisp-fried, mint chutney'},{n:'Chilli Momo Bowl',p:190,d:'Tossed in schezwan sauce'},{n:'Thukpa Noodle Soup',p:180,d:'Hearty broth, veggies'}]},
+    {id:'pizza', name:'Pizza Alley', cuisine:'Italian-American', emoji:'🍕', color:'#C1443C', rating:'4.4', time:'30-40 min',
+      items:[{n:'Margherita (Med)',p:250,d:'Fresh basil, mozzarella'},{n:'Farmhouse (Med)',p:320,d:'Loaded veggie classic'},{n:'Cheese Burst (Med)',p:350,d:'Molten cheese core'},{n:'Garlic Breadsticks',p:120,d:'Herb butter, 6pc'}]},
+    {id:'burger', name:'Burger Barn', cuisine:'American Diner', emoji:'🍔', color:'#8B5E34', rating:'4.2', time:'20-28 min',
+      items:[{n:'Classic Smash Burger',p:180,d:'Double patty, house sauce'},{n:'Double Cheese Burger',p:240,d:'Two patties, cheddar melt'},{n:'Loaded Fries',p:150,d:'Cheese, jalapeño, sauce'},{n:'Choco Shake',p:130,d:'Thick & cold'}]},
+    {id:'sushi', name:'Sushi Circuit', cuisine:'Japanese', emoji:'🍣', color:'#274B63', rating:'4.6', time:'32-42 min',
+      items:[{n:'California Roll (8pc)',p:290,d:'Crab, avocado, tobiko'},{n:'Salmon Nigiri (4pc)',p:320,d:'Fresh-cut, hand-pressed'},{n:'Veg Tempura Bowl',p:260,d:'Crisp veg, rice, sauce'},{n:'Miso Soup',p:110,d:'Tofu, wakame'}]},
+    {id:'curry', name:'Curry Cart', cuisine:'South Indian', emoji:'🥘', color:'#2F6B4F', rating:'4.5', time:'18-25 min',
+      items:[{n:'Masala Dosa',p:130,d:'Crisp, spiced potato filling'},{n:'Idli Sambar (4pc)',p:90,d:'Steamed, with sambar & chutney'},{n:'Filter Coffee',p:50,d:'South Indian style'},{n:'Mini Uttapam Combo',p:150,d:'3 mini uttapams'}]},
+  ];
+
+  const CRAVING_REASONS = ['Bored','Stressed','Tired','Lonely','Habit / it\'s that time','Saw an ad'];
+  const PAYMENT_METHODS = [
+    {id:'upi', label:'UPI', icon:'📱'},
+    {id:'card', label:'Card', icon:'💳'},
+    {id:'wallet', label:'Wallet', icon:'👛'},
+    {id:'cod', label:'Cash on Delivery', icon:'💵'},
+  ];
+  const CURRENCY = '₹';
+  const LOGS_KEY = 'cravefood_logs';
+  const ADDR_KEY = 'cravefood_addresses';
+
+  let state = {
+    view:'order',
+    logs:[], addresses:[],
+    selectedRestaurant:null,
+    cart:{},
+    modal:null,
+    checkoutStep:1,
+    selectedAddrId:null,
+    addingAddr:false,
+    selectedPayment:'upi',
+    cravingChip:null, cravingNote:'',
+    pendingOrder:null,
+  };
+
+  async function loadAll(){
+    try{ const r = await window.storage.get(LOGS_KEY,false); state.logs = r&&r.value? JSON.parse(r.value):[]; }catch(e){ state.logs=[]; }
+    try{ const r = await window.storage.get(ADDR_KEY,false); state.addresses = r&&r.value? JSON.parse(r.value):[]; }catch(e){ state.addresses=[]; }
+    if(state.addresses.length) state.selectedAddrId = state.addresses[0].id;
+  }
+  async function saveLogs(){ try{ await window.storage.set(LOGS_KEY, JSON.stringify(state.logs), false); }catch(e){console.error(e);} }
+  async function saveAddresses(){ try{ await window.storage.set(ADDR_KEY, JSON.stringify(state.addresses), false); }catch(e){console.error(e);} }
+
+  function fmt(n){ return CURRENCY + Math.round(n).toLocaleString('en-IN'); }
+  function todayStr(d){ const x=d||new Date(); return x.toISOString().slice(0,10); }
+  function escAttr(s){ return String(s).replace(/'/g,"\\'"); }
+
+  function computeStats(){
+    const total = state.logs.reduce((s,l)=>s+l.total,0);
+    const count = state.logs.length;
+    return {total, count, avg: count? total/count:0};
+  }
+  function computeStreak(){
+    if(!state.logs.length) return 0;
+    const dates = new Set(state.logs.map(l=>todayStr(new Date(l.ts))));
+    let streak=0; let cursor=new Date();
+    if(!dates.has(todayStr(cursor))) cursor.setDate(cursor.getDate()-1);
+    while(dates.has(todayStr(cursor))){ streak++; cursor.setDate(cursor.getDate()-1); }
+    return streak;
+  }
+  function last14(){
+    const days=[];
+    for(let i=13;i>=0;i--){
+      const d=new Date(); d.setDate(d.getDate()-i);
+      const key=todayStr(d);
+      const sum=state.logs.filter(l=>todayStr(new Date(l.ts))===key).reduce((s,l)=>s+l.total,0);
+      days.push({key,label:d.toLocaleDateString('en-IN',{weekday:'narrow'}),sum});
+    }
+    return days;
+  }
+  const MILESTONES=[500,1000,2500,5000,10000];
+  const STREAK_BADGES=[3,7,14,30];
+
+  function render(){
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.view===state.view));
+    document.getElementById('streakPill').textContent = '🔥 ' + computeStreak() + ' day streak';
+    const main=document.getElementById('main');
+    if(state.view==='order') main.innerHTML=renderOrder();
+    else if(state.view==='dashboard') main.innerHTML=renderDashboard();
+    else main.innerHTML=renderHistory();
+    renderModal();
+  }
+
+  function renderOrder(){
+    if(state.selectedRestaurant){
+      const r = RESTAURANTS.find(x=>x.id===state.selectedRestaurant);
+      let html = `<button class="back-btn" onclick="cf.backToRestaurants()">&larr; All restaurants</button>`;
+      html += `<div class="r-hero" style="background:linear-gradient(135deg, ${r.color}, ${shade(r.color)});">
+        <div class="emoji">${r.emoji}</div>
+        <div class="name">${r.name}</div>
+        <div class="cuisine">${r.cuisine}</div>
+        <div class="meta"><span>⭐ ${r.rating}</span><span>⏱ ${r.time}</span><span>🛵 Free delivery</span></div>
+      </div>`;
+      r.items.forEach(it=>{
+        const qty = state.cart[it.n]? state.cart[it.n].qty:0;
+        html += `<div class="menu-item">
+          <div class="info"><div class="name">${it.n}</div><div class="desc">${it.d||''}</div><div class="price">${fmt(it.p)}</div></div>
+          ${qty===0
+            ? `<button class="qty-btn" onclick="cf.addItem('${r.id}','${escAttr(it.n)}',${it.p})">Add</button>`
+            : `<div class="qty-control"><button onclick="cf.decItem('${escAttr(it.n)}')">−</button><span class="num">${qty}</span><button onclick="cf.addItem('${r.id}','${escAttr(it.n)}',${it.p})">+</button></div>`
+          }
+        </div>`;
+      });
+      return html;
+    }
+
+    const cartCount = Object.values(state.cart).reduce((s,i)=>s+i.qty,0);
+    let html = `<div class="nudge"><span class="icon">🍽️</span><div>Feeling like ordering? <b>Build the order here first.</b> Same ritual — browse, cart, address, payment, checkout — minus the money and the guilt.</div></div>`;
+    html += `<div class="section-label">Restaurants nearby<button class="link-btn" onclick="cf.openQuickLog()">Quick log instead</button></div>`;
+    html += `<div class="r-grid">`;
+    RESTAURANTS.forEach(r=>{
+      html += `<button class="r-card" onclick="cf.selectRestaurant('${r.id}')">
+        <div class="banner" style="background:linear-gradient(135deg, ${r.color}, ${shade(r.color)});">${r.emoji}</div>
+        <div class="body">
+          <div class="name">${r.name}</div>
+          <div class="cuisine">${r.cuisine}</div>
+          <div class="meta"><span>⭐ ${r.rating}</span><span>⏱ ${r.time}</span></div>
+        </div>
+      </button>`;
+    });
+    html += `</div>`;
+    if(cartCount>0){
+      const total = Object.values(state.cart).reduce((s,i)=>s+i.qty*i.price,0);
+      html += `<div class="cart-bar" onclick="cf.openCheckout()">
+        <div><div class="l">${cartCount} item${cartCount>1?'s':''} in cart</div><div class="r">${fmt(total)}</div></div>
+        <div class="go">Checkout →</div>
+      </div>`;
+    }
+    return html;
+  }
+
+  function shade(hex){
+    const c = hex.replace('#','');
+    const num = parseInt(c,16);
+    let r=(num>>16)-30, g=((num>>8)&0xff)-30, b=(num&0xff)-30;
+    r=Math.max(0,r); g=Math.max(0,g); b=Math.max(0,b);
+    return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+  }
+
+  function renderDashboard(){
+    const s=computeStats(); const streak=computeStreak(); const days=last14();
+    const maxSum=Math.max(...days.map(d=>d.sum),1);
+    let html=`<div class="stat-grid">
+      <div class="stat-card"><div class="big">${fmt(s.total)}</div><div class="lbl">Total saved</div></div>
+      <div class="stat-card"><div class="big">${s.count}</div><div class="lbl">Orders avoided</div></div>
+      <div class="stat-card"><div class="big">${fmt(s.avg)}</div><div class="lbl">Avg. avoided order</div></div>
+      <div class="stat-card"><div class="big">${streak}</div><div class="lbl">Day streak</div></div>
+    </div>`;
+    html+=`<div class="chart-box"><div class="title">Last 14 days</div><div class="bars">`;
+    days.forEach(d=>{
+      const h=d.sum? Math.max(6,Math.round((d.sum/maxSum)*82)):3;
+      html+=`<div class="bar-col"><div class="bar ${d.sum?'':'zero'}" style="height:${h}px" title="${fmt(d.sum)}"></div><div class="day">${d.label}</div></div>`;
+    });
+    html+=`</div></div>`;
+    html+=`<div class="section-label" style="margin-top:20px;">Milestones</div><div class="badges">`;
+    MILESTONES.forEach(m=>{ html+=`<div class="badge ${s.total>=m?'on':''}">💰 ${fmt(m)}</div>`; });
+    STREAK_BADGES.forEach(d=>{ html+=`<div class="badge ${streak>=d?'on':''}">🔥 ${d}-day</div>`; });
+    html+=`</div>`;
+    return html;
+  }
+
+  function renderHistory(){
+    if(!state.logs.length) return `<div class="empty"><div class="big-emoji">🧾</div>Nothing logged yet.<br>Your saved receipts will show up here.</div>`;
+    const sorted=[...state.logs].sort((a,b)=>b.ts-a.ts);
+    let html=`<div class="section-label">All saved receipts</div>`;
+    sorted.forEach(l=>{
+      const d=new Date(l.ts);
+      const itemsStr=l.items.map(i=>`${i.qty}× ${i.n}`).join(', ');
+      html+=`<div class="hist-item">
+        <div class="top"><span class="r">${l.restaurantEmoji||'🍽️'} ${l.restaurant}</span><span class="amt">+${fmt(l.total)}</span></div>
+        <div class="meta">${d.toLocaleDateString('en-IN',{day:'numeric',month:'short'})} · ${d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})} · ${itemsStr}${l.address? ' · '+l.address:''}${l.payment? ' · '+l.payment:''}</div>
+        ${l.craving ? `<div class="note">"${l.craving}${l.note? ' — '+l.note:''}"</div>` : ''}
+      </div>`;
+    });
+    return html;
+  }
+
+  function renderModal(){
+    let root=document.getElementById('overlayRoot');
+    if(root) root.remove();
+    if(!state.modal) return;
+    const wrap=document.createElement('div');
+    wrap.id='overlayRoot'; wrap.className='overlay';
+    if(state.modal==='checkout') wrap.innerHTML = checkoutSheet();
+    else if(state.modal==='quicklog') wrap.innerHTML = quickLogSheet();
+    else if(state.modal==='receipt') wrap.innerHTML = receiptSheet();
+    document.body.appendChild(wrap);
+    wrap.addEventListener('click',(e)=>{ if(e.target===wrap && !(state.modal==='checkout' && state.checkoutStep===4)) cf.closeModal(); });
+
+    if(state.modal==='receipt'){
+      requestAnimationFrame(()=>{ const st=document.getElementById('stampEl'); if(st) st.classList.add('show'); });
+    }
+    if(state.modal==='checkout' && state.checkoutStep===4){
+      runOrderTracking();
+    }
+  }
+
+  function stepDots(){
+    const labels=['Cart','Address','Payment'];
+    let html='<div class="step-track">';
+    for(let i=1;i<=3;i++){
+      const cls = i<state.checkoutStep?'dot done': i===state.checkoutStep?'dot on':'dot';
+      html+=`<div class="${cls}">${i<state.checkoutStep?'✓':i}</div>`;
+      if(i<3) html+=`<div class="seg ${i<state.checkoutStep?'on':''}"></div>`;
+    }
+    html+='</div>';
+    return html;
+  }
+
+  function checkoutSheet(){
+    const items = Object.entries(state.cart).map(([n,v])=>({n, qty:v.qty, price:v.price}));
+    const total = items.reduce((s,i)=>s+i.qty*i.price,0);
+
+    if(state.checkoutStep===1){
+      let lines = items.map(i=>`<div class="menu-item" style="padding:8px 0;"><div class="info"><div class="name">${i.n}</div><div class="price">${i.qty} × ${fmt(i.price)}</div></div><div class="mono" style="font-weight:700;">${fmt(i.qty*i.price)}</div></div>`).join('');
+      return `<div class="sheet">
+        <button class="close-x" onclick="cf.closeModal()">✕</button>
+        ${stepDots()}
+        <h3>Review your order</h3>
+        <div class="sub">${items.length} item${items.length>1?'s':''} from the cart</div>
+        ${lines}
+        <div class="rline mono" style="display:flex;justify-content:space-between;font-weight:700;padding-top:10px;border-top:1px dashed var(--line);margin-top:6px;"><span>Subtotal</span><span>${fmt(total)}</span></div>
+        <button class="primary-btn" onclick="cf.goStep(2)">Deliver to →</button>
+      </div>`;
+    }
+
+    if(state.checkoutStep===2){
+      let addrHtml = state.addresses.map(a=>`
+        <div class="addr-card ${state.selectedAddrId===a.id?'sel':''}" onclick="cf.selectAddr('${a.id}')">
+          <div><div class="lbl">${a.label==='Home'?'🏠':a.label==='Work'?'🏢':'📍'} ${a.label}</div><div class="txt">${a.text}</div></div>
+          ${state.selectedAddrId===a.id? '<div class="check">✓</div>' : ''}
+        </div>`).join('');
+      let addForm = state.addingAddr ? `
+        <div class="add-addr-form">
+          <label class="field-label">Label</label>
+          <input type="text" id="newAddrLabel" placeholder="e.g. Home, Work, Hostel">
+          <label class="field-label">Address</label>
+          <textarea id="newAddrText" rows="2" placeholder="Flat / street / area"></textarea>
+          <button class="ghost-btn" onclick="cf.saveNewAddr()">Save address</button>
+        </div>` : `<button class="link-btn" style="margin-top:6px;" onclick="cf.toggleAddAddr()">+ Add a new address</button>`;
+
+      return `<div class="sheet">
+        <button class="close-x" onclick="cf.closeModal()">✕</button>
+        ${stepDots()}
+        <h3>Deliver to</h3>
+        <div class="sub">Purely for the ritual — saved only on this device</div>
+        ${addrHtml || '<div style="font-size:12.5px;color:#8a8271;margin-bottom:8px;">No saved addresses yet.</div>'}
+        ${addForm}
+        <button class="primary-btn" ${state.selectedAddrId? '' : 'disabled'} onclick="cf.goStep(3)">Continue to payment →</button>
+      </div>`;
+    }
+
+    if(state.checkoutStep===3){
+      let payGrid = PAYMENT_METHODS.map(p=>`
+        <div class="pay-card ${state.selectedPayment===p.id?'sel':''}" onclick="cf.selectPayment('${p.id}')">
+          <div class="ic">${p.icon}</div><div class="lb">${p.label}</div>
+        </div>`).join('');
+      let cardDemo = state.selectedPayment==='card' ? `
+        <div class="demo-card"><div class="badge">DEMO</div>
+          <div class="num">4242&nbsp;&nbsp;4242&nbsp;&nbsp;4242&nbsp;&nbsp;4242</div>
+          <div class="row"><span>CRAVEFOOD USER</span><span>12/29</span></div>
+        </div>
+        <div class="demo-note">Placeholder card for the ritual — no real payment details needed.</div>` : '';
+
+      let chips = CRAVING_REASONS.map(c=>`<button class="chip ${state.cravingChip===c?'sel':''}" onclick="cf.pickChip('${escAttr(c)}')">${c}</button>`).join('');
+
+      return `<div class="sheet">
+        <button class="close-x" onclick="cf.closeModal()">✕</button>
+        ${stepDots()}
+        <h3>Payment method</h3>
+        <div class="sub">${fmt(total)} · nothing will actually be charged</div>
+        <div class="pay-grid">${payGrid}</div>
+        ${cardDemo}
+        <label class="field-label">What's pulling you toward ordering?</label>
+        <div class="chip-row">${chips}</div>
+        <textarea rows="2" placeholder="Optional note…" oninput="cf.setNote(this.value)">${state.cravingNote}</textarea>
+        <button class="primary-btn" onclick="cf.placeOrder()">Place order · ${fmt(total)}</button>
+      </div>`;
+    }
+
+    if(state.checkoutStep===4){
+      return `<div class="sheet">
+        <div class="track-wrap">
+          <div class="circle spin" id="trackCircle">🛵</div>
+          <div class="track-status" id="trackStatus">Placing your order…</div>
+          <div class="track-sub">Sit tight, this takes a few seconds</div>
+          <div class="track-steps" id="trackSteps">
+            <div class="track-step" data-i="0"><div class="tick">1</div>Order placed</div>
+            <div class="track-step" data-i="1"><div class="tick">2</div>Restaurant preparing</div>
+            <div class="track-step" data-i="2"><div class="tick">3</div>Courier picked up</div>
+            <div class="track-step" data-i="3"><div class="tick">4</div>Arriving at your door</div>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+
+  function quickLogSheet(){
+    let chips = CRAVING_REASONS.map(c=>`<button class="chip ${state.cravingChip===c?'sel':''}" onclick="cf.pickChip('${escAttr(c)}')">${c}</button>`).join('');
+    return `<div class="sheet">
+      <button class="close-x" onclick="cf.closeModal()">✕</button>
+      <h3>Quick craving log</h3>
+      <div class="sub">Skip the menu — just log what you almost ordered.</div>
+      <label class="field-label">Where from?</label>
+      <input type="text" id="qlPlace" placeholder="e.g. usual biryani place">
+      <label class="field-label">Roughly how much?</label>
+      <input type="number" id="qlAmount" placeholder="e.g. 350">
+      <label class="field-label">What's pulling you toward ordering?</label>
+      <div class="chip-row">${chips}</div>
+      <textarea rows="2" placeholder="Optional note…" oninput="cf.setNote(this.value)">${state.cravingNote}</textarea>
+      <button class="primary-btn" onclick="cf.confirmQuickLog()">Save this as avoided</button>
+    </div>`;
+  }
+
+  function receiptSheet(){
+    const o = state.pendingOrder;
+    let itemLines = o.items.map(i=>`<div class="rline"><span>${i.qty}× ${i.n}</span><span>${fmt(i.qty*i.price)}</span></div>`).join('');
+    return `<div class="sheet" style="text-align:center;">
+      <div class="checkmark-wrap">
+        <div class="checkmark-circle"><svg viewBox="0 0 24 24"><path d="M4 12.5L9.5 18L20 6"/></svg></div>
+      </div>
+      <div class="receipt-wrap">
+        <div class="receipt" style="text-align:left;">
+          <div class="center" style="font-weight:700;">${o.restaurant}</div>
+          <div class="center" style="font-size:10.5px;color:#888;">${new Date(o.ts).toLocaleString('en-IN')}</div>
+          ${o.address? `<div class="center" style="font-size:10px;color:#999;margin-top:2px;">Deliver to: ${o.address}</div>`:''}
+          ${o.payment? `<div class="center" style="font-size:10px;color:#999;">Paid via: ${o.payment}</div>`:''}
+          <div class="dash"></div>
+          ${itemLines}
+          <div class="dash"></div>
+          <div class="rline" style="font-weight:700;"><span>TOTAL</span><span>${fmt(o.total)}</span></div>
+          <div class="stamp" id="stampEl">SAVED</div>
+        </div>
+      </div>
+      <div class="confetti-msg">You just kept ${fmt(o.total)} in your pocket 🎉<br><span style="font-weight:400;font-size:12px;color:#8a8271;">No real order was placed.</span></div>
+      <button class="primary-btn" onclick="cf.closeModal()">Nice</button>
+    </div>`;
+  }
+
+  function runOrderTracking(){
+    const statuses = ['Order placed ✓','Restaurant is preparing your food','Courier picked up your order','Arriving at your door…'];
+    let idx = 0;
+    function tick(){
+      const statusEl = document.getElementById('trackStatus');
+      if(!statusEl) return;
+      statusEl.textContent = statuses[idx];
+      const stepsWrap = document.getElementById('trackSteps');
+      const steps = stepsWrap ? stepsWrap.querySelectorAll('.track-step') : [];
+      steps.forEach((el,i)=>{ if(i<=idx) el.classList.add('done'); });
+      idx++;
+      if(idx < statuses.length){
+        setTimeout(tick, 650);
+      } else {
+        setTimeout(finalizeOrder, 700);
+      }
+    }
+    tick();
+  }
+
+  async function finalizeOrder(){
+    const rid = state.selectedRestaurant;
+    const r = RESTAURANTS.find(x=>x.id===rid);
+    const items = Object.entries(state.cart).map(([n,v])=>({n, qty:v.qty, price:v.price}));
+    const total = items.reduce((s,i)=>s+i.qty*i.price,0);
+    const addr = state.addresses.find(a=>a.id===state.selectedAddrId);
+    const payLabel = (PAYMENT_METHODS.find(p=>p.id===state.selectedPayment)||{}).label;
+    const order = {
+      id:'ord_'+Date.now(), ts:Date.now(),
+      restaurant: r? r.name:'Order', restaurantEmoji: r? r.emoji:'🍽️',
+      items, total,
+      address: addr? (addr.label+' — '+addr.text) : null,
+      payment: payLabel || null,
+      craving: state.cravingChip, note: state.cravingNote || null
+    };
+    state.logs.push(order);
+    await saveLogs();
+    state.cart = {};
+    state.selectedRestaurant = null;
+    state.pendingOrder = order;
+    state.modal = 'receipt';
+    render();
+  }
+
+  window.cf = {
+    selectRestaurant(id){ state.selectedRestaurant=id; render(); },
+    backToRestaurants(){ state.selectedRestaurant=null; render(); },
+    addItem(rid,name,price){ if(!state.cart[name]) state.cart[name]={qty:0,price,rid}; state.cart[name].qty++; render(); },
+    decItem(name){ if(!state.cart[name]) return; state.cart[name].qty--; if(state.cart[name].qty<=0) delete state.cart[name]; render(); },
+
+    openCheckout(){ state.modal='checkout'; state.checkoutStep=1; state.cravingChip=null; state.cravingNote=''; render(); },
+    openQuickLog(){ state.modal='quicklog'; state.cravingChip=null; state.cravingNote=''; render(); },
+    closeModal(){ state.modal=null; state.checkoutStep=1; state.pendingOrder=null; render(); },
+    goStep(n){ state.checkoutStep=n; render(); },
+
+    selectAddr(id){ state.selectedAddrId=id; state.addingAddr=false; render(); },
+    toggleAddAddr(){ state.addingAddr=!state.addingAddr; render(); },
+    async saveNewAddr(){
+      const label = document.getElementById('newAddrLabel').value.trim() || 'Address';
+      const text = document.getElementById('newAddrText').value.trim();
+      if(!text) return;
+      const addr = {id:'addr_'+Date.now(), label, text};
+      state.addresses.push(addr);
+      await saveAddresses();
+      state.selectedAddrId = addr.id;
+      state.addingAddr = false;
+      render();
+    },
+
+    selectPayment(id){ state.selectedPayment=id; render(); },
+    pickChip(c){ state.cravingChip = state.cravingChip===c? null : c; render(); },
+    setNote(v){ state.cravingNote=v; },
+
+    placeOrder(){ state.checkoutStep=4; render(); },
+
+    async confirmQuickLog(){
+      const place = document.getElementById('qlPlace').value.trim() || 'Somewhere tempting';
+      const amount = parseFloat(document.getElementById('qlAmount').value) || 0;
+      const order = {
+        id:'ord_'+Date.now(), ts:Date.now(), restaurant:place, restaurantEmoji:'📝',
+        items:[{n:'Quick log', qty:1, price:amount}], total:amount,
+        craving: state.cravingChip, note: state.cravingNote || null
+      };
+      state.logs.push(order);
+      await saveLogs();
+      state.modal='receipt'; state.pendingOrder=order; render();
+    },
+
+    switchView(v){ state.view=v; state.selectedRestaurant=null; render(); }
+  };
+
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click', ()=>cf.switchView(b.dataset.view)));
+
+  (async function init(){ await loadAll(); render(); })();
+})();
+</script>
+</body>
+</html>
