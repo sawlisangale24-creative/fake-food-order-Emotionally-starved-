@@ -1,0 +1,25 @@
+Install Jenkins – Install Jenkins on your Linux server and access it on port 8080.
+
+3. Install Plugins – Install Git, GitHub Integration, and Pipeline plugins.
+
+4. Connect GitHub – Configure GitHub repository URL and credentials in Jenkins.
+
+5. Configure Webhook – Add Jenkins webhook URL in GitHub settings to trigger builds automatically.
+
+6. Create Jenkinsfile – Add pipeline stages:
+
+Checkout – Download code from GitHub.
+
+Build – Compile application.
+
+Test – Execute test cases.
+
+Package – Generate JAR/WAR file.
+
+Deploy – Deploy application to the server.
+
+7. Create Jenkins Pipeline – Configure Jenkins to use the Jenkinsfile from GitHub.
+
+8. Push Code – Developer pushes updated code to GitHub.
+
+9. Automatic Deployment – Jenkins automatically builds, tests, and deploys the application.
